@@ -1,0 +1,15 @@
+﻿@using Core.Contexts
+
+<h3>PersonalFinancialInquiryDetails</h3>
+
+<MudStack>
+    <MudText>Id: @Inquiry.Id</MudText>
+    <MudText>PersonId: @Inquiry.PersonId</MudText>
+    <MudText>Titel: @Inquiry.Titel</MudText>
+    <MudText>DisplayName: @Inquiry.DisplayName</MudText>
+</MudStack>
+
+@code {
+    [Parameter]
+    public required PersonalFinancalInquiry Inquiry { get; set; }
+}

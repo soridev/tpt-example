@@ -1,0 +1,83 @@
+﻿@page "/"
+
+@using Core.Contexts
+@using Core.Interfaces
+
+@inject IInquiryRepository InquiryRepository
+
+<PageTitle>Home</PageTitle>
+
+<MudGrid Class="pt-3 px-3">    
+    <MudItem xs="12">
+        <MudPaper Outlined Elevation=0 Class="pa-3">
+            <MudStack Row="true">
+                <MudTextField @bind-Value="searchText" Label="PersonId..." Variant="Variant.Text"></MudTextField>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick=SearchClick>Search</MudButton>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12">
+        <MudPaper Outlined Elevation=0>
+            <MudList T="Inquiry">
+                @foreach (var item in Inquiries)
+                {
+                    <MudListItem Text=@item.DisplayName Value=item">
+                        @item.DisplayName
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => SelectClick(item)">Show Content</MudButton>
+                    </MudListItem>
+                }
+            </MudList>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12">
+        @if(selectedInquiry is not null)
+        {
+            <DynamicComponent Type=InquiryUiRegistry.GetComponentType(selectedInquiry) Parameters=GetParameters(selectedInquiry)/>
+        }
+    </MudItem>
+</MudGrid>
+
+@code {
+    private IEnumerable<Inquiry> Inquiries { get; set; } = new List<Inquiry>();
+    private string searchText { get; set; } = "";
+    private Inquiry? selectedInquiry { get; set; } = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Inquiries = await InquiryRepository.GetInquiriesAsync();
+    }
+
+    private async void SearchClick()
+    {
+        if(!string.IsNullOrWhiteSpace(searchText))
+        {
+            Guid searchParameter;
+            var x = Guid.TryParse(searchText, out searchParameter);
+
+            if(x is true)
+            {
+                Inquiries = await InquiryRepository.GetInquiriesByPersonId(searchParameter);
+            }
+            else
+            {
+                Inquiries = [];
+            }
+        }
+        else
+        {
+            Inquiries = await InquiryRepository.GetInquiriesAsync();   
+        }
+
+        StateHasChanged();
+    }
+
+    private async void SelectClick(Inquiry inquiry) => selectedInquiry = inquiry;
+
+    private Dictionary<string, object> GetParameters(Inquiry item)
+    {
+        return new Dictionary<string, object>
+        {
+            { "Inquiry", item } // Ensure every detail component has a [Parameter] called Data
+        };
+    }
+}
