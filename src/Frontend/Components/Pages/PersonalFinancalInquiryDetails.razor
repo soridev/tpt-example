@@ -1,4 +1,4 @@
-﻿@using Core.Contexts
+﻿@inherits InquiryDetailBase<PersonalFinancalInquiry>
 
 <h3>PersonalFinancialInquiryDetails</h3>
 
@@ -10,6 +10,5 @@
 </MudStack>
 
 @code {
-    [Parameter]
-    public required PersonalFinancalInquiry Inquiry { get; set; }
+
 }
